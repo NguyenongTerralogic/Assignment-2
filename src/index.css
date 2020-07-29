@@ -1,4 +1,4 @@
-@font-face {
+/* @font-face {
   font-family: Proxima;
   src: url(/assets/fonts/proxima/ProximaNova-Regular.otf);
   font-weight: 400;
@@ -66,11 +66,11 @@
 
 }
 
-.app .form .group{
+.app .form .group:nth-child(1){
 	margin-bottom: 19px;
 }
 
-.app .form .group:nth-child(5){
+.app .form .group:nth-child(2){
 	margin-bottom: 30px;
 }
 
@@ -222,12 +222,4 @@
 	}
 }
 
-
-.app .main .intro h3 {
-	font-size:11px;
-}
-
-.container h3 {
-	color:#bfc2d3;
-	font-size:18px;
-}
+ */

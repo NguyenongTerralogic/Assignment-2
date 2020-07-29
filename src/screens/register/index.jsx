@@ -1,9 +1,9 @@
 import React from "react"
 import { Link, withRouter } from "react-router-dom";
 // import "./style.css"
-import { emailRegex } from "../../utils/constants.js"
+import { emailRegex } from "../../utils/constants";
 import axios from "axios";
-
+import { phoneRegex } from '../../utils/constants';
 const SignIn = props => {
 	const [email, setEmail] = React.useState("");
 	const [emailError, setEmailError] = React.useState("");
@@ -44,6 +44,9 @@ const SignIn = props => {
 		if (phoneNumber.length < 10) {
 			flag = false;
 			setPhoneNumberError('Your phone is not formatted');
+		} else if (phoneRegex.test(phoneNumber) == false) {
+			flag = false;
+			setPhoneNumberError("Phone is not formatted");
 		}
 		return flag;
 	}
@@ -62,8 +65,9 @@ const SignIn = props => {
 				phone: phoneNumber
 			}).then(res => {
 				console.log(res);
-				if (res.data.status === 200)
-					props.history.push("/profile");
+				if (res.data.status === 1) {
+					props.history.push("/login");
+				}
 				else setResponseError(res.data.msg);
 			}).catch(e => {
 				setResponseError("Something went wrong, please try again");

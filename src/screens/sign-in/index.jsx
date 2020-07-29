@@ -45,6 +45,7 @@ const SignIn = props => {
 			}).then(res => {
 				console.log(res);
 				if (res.data.status === 1) {
+					localStorage.setItem('token', res.data.token);
 					props.history.push("/profile");
 				}
 				else setResponseError(res.data.msg);
