@@ -1,19 +1,23 @@
-import React, { useState, Ref, useRef } from "react"
+import React, { useRef } from "react"
 import './style.scss';
 import { Link, withRouter } from "react-router-dom";
 import axios from "axios";
-let jwtDecoder = require('jwt-decode');
+import { emailRegex, phoneRegex, passwordRegex } from '../../utils/constants';
+
 const fileExt = ['png', 'jpg', 'jpeg', 'svg'];
 
 const Profile = props => {
 	let token = localStorage.getItem('token');
-	//let userInfo = jwtDecoder(token);
-	const [userInfo, setUserInfo] = useState(jwtDecoder(token));
-	const [avatar, setAvatar] = useState(userInfo.avatar ? userInfo.avatar : "/assets/images/avatar.png");
-	const [showPassword, setShowPassword] = useState(false);
-	const [newShowPassword, setnewShowPassword] = useState(false);
-	const [confirmShowPassword, setconfirmShowPassword] = useState(false);
-	
+	const [userInfo, setUserInfo] = React.useState(JSON.parse(localStorage.getItem('key')));
+	const [avatar, setAvatar] = React.useState(userInfo.avatar ? userInfo.avatar : "/assets/images/avatar.png");
+	const [showPassword, setShowPassword] = React.useState(false);
+	const [newShowPassword, setnewShowPassword] = React.useState(false);
+	const [confirmShowPassword, setconfirmShowPassword] = React.useState(false);
+	const [emailError, setEmailError] = React.useState("");
+	const [confirmPasswordError, setconfirmPasswordError] = React.useState("");
+	const [passwordError, setPasswordError] = React.useState("");
+	const [fullNameError, setfullNameError] = React.useState("");
+	const [phoneNumberError, setPhoneNumberError] = React.useState("");
 	let fileRef = useRef();
 	let nameRef = useRef();
 	let emailRef = useRef();
@@ -21,6 +25,54 @@ const Profile = props => {
 	let currPasswordRef = useRef();
 	let newPasswordRef = useRef();
 	let confirmPasswordRef = useRef();
+
+
+	const validate = () => {
+		let flag = true;
+		if (emailRef.value == "") {
+			flag = false;
+			setEmailError("Please enter your email");
+		} else if (emailRegex.test(emailRef.value) == false) {
+			flag = false;
+			setEmailError("Email address is not correct");
+		}
+
+		if (userInfo.name == "") {
+			flag = false;
+			setfullNameError('Please put your name');
+		}
+		if (userInfo.phone.length < 10) {
+			flag = false;
+			setPhoneNumberError('Your phone is not formatted');
+		} else if (phoneRegex.test(userInfo.phone) == false) {
+			flag = false;
+			setPhoneNumberError("Phone is not formatted");
+		}
+		return flag;
+	}
+
+	const validatePassword = () => {
+		let flag = "UPDATE_PASSWORD";
+
+		if(!newPasswordRef.value && !currPasswordRef.value && !confirmPasswordRef.value)
+			return "NO_UPDATE_PASSWORD";
+
+		if (newPasswordRef.value == "" || currPasswordRef.value == "") {
+			flag="ERROR";
+			setPasswordError("Please enter your password");
+		}
+
+		if (!passwordRegex.test(newPasswordRef.value)) {
+			flag="ERROR";
+			setconfirmPasswordError("Your password is not correct");
+		}
+
+		if (confirmPasswordRef.value !== newPasswordRef.value) {
+			flag="ERROR";
+			setconfirmPasswordError("Your password is not correct");
+		}
+		return flag;
+	}
 
 	const handleClick = e => {
 		e.preventDefault();
@@ -32,7 +84,7 @@ const Profile = props => {
 		const file = e.target.value.split("\\");
 		const fileName = file.slice(-1)[0];
 		const fileNameExt = fileName.split(".").slice(-1)[0];
-		
+
 		if (!fileExt.includes(fileNameExt)) {
 			alert('Wrong type');
 		}
@@ -41,21 +93,19 @@ const Profile = props => {
 			formData.append("image", e.target.files[0]);
 			axios.post('http://api.terralogic.ngrok.io/api/upload', formData, {
 				headers: {
-				  'Content-Type': 'multipart/form-data',
-				  'Authorization': 'Bearer ' + token
+					'Content-Type': 'multipart/form-data',
+					'Authorization': 'Bearer ' + token
 				}
-			} ).then(res => {
+			}).then(res => {
 				alert(res.data.msg);
 				localStorage.setItem('linkAvatar', "http://api.terralogic.ngrok.io/" + res.data.data);
 				setAvatar("http://api.terralogic.ngrok.io/" + res.data.data);
 			}).catch(error => console.log(error.response));
 		}
-		
-	}
-	
 
-	const saveInfo = (e) => {
-		e.preventDefault();
+	}
+
+	const updateProfile = () => {
 		const info = {
 			avatar,
 			email: emailRef.value,
@@ -63,39 +113,46 @@ const Profile = props => {
 			name: nameRef.value,
 			displayName: nameRef.value
 		}
-		axios.patch('http://api.terralogic.ngrok.io/api/update', info, { headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token}
-		  }).then(res => {
-			alert('Success');
-			setUserInfo({...userInfo}, res.data);
-			setAvatar(res.avatar ? res.avatar : avatar);
-		});
-
-		//Password update
-		if (newPasswordRef.value === confirmPasswordRef.value && currPasswordRef.value) {
-			const passwordInfo = {
-				currentPassword: currPasswordRef.value,
-				password: newPasswordRef.value 
-			}
-
-		axios.post('http://api.terralogic.ngrok.io/api/changePassword', passwordInfo, { headers: {
+		axios.patch('http://api.terralogic.ngrok.io/api/update', info, {
+			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token}
-			  }).then(res => {
-				  alert(res.data.msg);
-			  });
-		} else alert('Error');
-
-		
-		// .then(res => {
-		// 	// alert('Success');
-		// 	setUserInfo({...userInfo}, res.data);
-		// 	setAvatar(res.avatar ? res.avatar : avatar);
-		// });
-
-		
+				'Authorization': 'Bearer ' + token
+			}
+		}).then(res => {
+			alert('Success');
+			localStorage.setItem('key', JSON.stringify({...res.data.data}));
+			setUserInfo({...res.data.data});
+			setAvatar(res.data.data.avatar ? res.data.data.avatar : avatar);
+		});
 	}
+
+	const updatePassword = () => {
+		const passwordInfo = {
+			currentPassword: currPasswordRef.value,
+			password: newPasswordRef.value
+		}
+
+		axios.post('http://api.terralogic.ngrok.io/api/changePassword', passwordInfo, {
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token
+		}
+		}).then(res => {
+			alert(res.data.msg);
+		});
+	}
+
+
+	const saveInfo = (e) => {
+		e.preventDefault();
+			//Password update
+		if (validatePassword() == "UPDATE_PASSWORD") {
+			updatePassword();
+			updateProfile();
+		} else if (validatePassword() == "NO_UPDATE_PASSWORD") updateProfile();
+		else alert("ERROR");
+	}
+
 
 	const logout = (e) => {
 		e.preventDefault();
@@ -147,7 +204,7 @@ const Profile = props => {
 						<div className="form-row">
 							<div className="form-group col">
 								<label for="currentPwdInput">Current Password</label>
-								<input type={showPassword == true ? "text" : "password"} className="form-control" ref={input => currPasswordRef = input} defaultValue={null}/>
+								<input type={showPassword == true ? "text" : "password"} className="form-control" ref={input => currPasswordRef = input} defaultValue={null} />
 								<button className="showBtn" onClick={e => {
 									e.preventDefault();
 									setShowPassword(!showPassword);
@@ -161,7 +218,7 @@ const Profile = props => {
 						<div className="form-row">
 							<div className="form-group col">
 								<label for="newPwdInput">New Password</label>
-								<input type={newShowPassword == true ? "text" : "password"} className="form-control" ref={input => newPasswordRef = input} defaultValue={null}/>
+								<input type={newShowPassword == true ? "text" : "password"} className="form-control" ref={input => newPasswordRef = input} defaultValue={null} />
 								<button className="showBtn" onClick={e => {
 									e.preventDefault();
 									setnewShowPassword(!newShowPassword);
@@ -170,7 +227,7 @@ const Profile = props => {
 							</div>
 							<div className="form-group col">
 								<label for="confirmPwdInput">Confirm Password</label>
-								<input type={confirmShowPassword == true ? "text" : "password"} className="form-control" ref={input => confirmPasswordRef = input} defaultValue={null}/>
+								<input type={confirmShowPassword == true ? "text" : "password"} className="form-control" ref={input => confirmPasswordRef = input} defaultValue={null} />
 								<button className="showBtn" onClick={e => {
 									e.preventDefault();
 									setconfirmShowPassword(!confirmShowPassword);

@@ -3,6 +3,7 @@ import { Link, withRouter } from "react-router-dom";
 import "./style.css"
 import { emailRegex } from "../../utils/constants.js"
 import axios from "axios";
+let jwtDecoder = require('jwt-decode');
 
 const SignIn = props => {
 	const [email, setEmail] = React.useState("");
@@ -33,6 +34,7 @@ const SignIn = props => {
 	}
 
 	const submit = () => {
+		localStorage.clear();
 		if (loading) return;
 
 		if (validate() == true) {
@@ -46,6 +48,8 @@ const SignIn = props => {
 				console.log(res);
 				if (res.data.status === 1) {
 					localStorage.setItem('token', res.data.token);
+					const user = jwtDecoder(res.data.token);
+					localStorage.setItem('key', JSON.stringify(user));
 					props.history.push("/profile");
 				}
 				else setResponseError(res.data.msg);

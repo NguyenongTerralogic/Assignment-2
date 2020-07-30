@@ -1,9 +1,9 @@
 import React from "react"
 import { Link, withRouter } from "react-router-dom";
 // import "./style.css"
-import { emailRegex } from "../../utils/constants";
+import { emailRegex, phoneRegex, passwordRegex } from "../../utils/constants";
 import axios from "axios";
-import { phoneRegex } from '../../utils/constants';
+
 const SignIn = props => {
 	const [email, setEmail] = React.useState("");
 	const [emailError, setEmailError] = React.useState("");
@@ -32,6 +32,9 @@ const SignIn = props => {
 		if (password == "") {
 			flag = false;
 			setPasswordError("Please enter your password");
+		} else if (passwordRegex.test(password) == false) {
+			flag = false;
+			setPasswordError("Your password is weak");
 		}
 		if (confirmPassword !== password || confirmPassword == "") {
 			flag = false;
