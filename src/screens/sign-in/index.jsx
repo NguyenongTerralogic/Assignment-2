@@ -1,11 +1,14 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Link, withRouter } from "react-router-dom";
 import "./style.css"
 import { emailRegex } from "../../utils/constants.js"
 import axios from "axios";
+import * as Actions from "../../Redux/actions.js";
+import { useDispatch, useSelector } from "react-redux";
 let jwtDecoder = require('jwt-decode');
 
 const SignIn = props => {
+	const dispatch = useDispatch();
 	const [email, setEmail] = React.useState("");
 	const [emailError, setEmailError] = React.useState("");
 	const [password, setPassword] = React.useState("");
@@ -13,6 +16,11 @@ const SignIn = props => {
 	const [responseError, setResponseError] = React.useState("");
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
+	const isFetching = useSelector(state => state.isFetching);
+
+	useEffect(() => {
+		setLoading(isFetching);
+	});
 
 	const validate = () => {
 		let flag = true;
@@ -32,24 +40,21 @@ const SignIn = props => {
 
 		return flag;
 	}
-
 	const submit = () => {
 		localStorage.clear();
 		if (loading) return;
-
 		if (validate() == true) {
+			dispatch(Actions.login())
 			setResponseError("");
-
-			setLoading(true);
 			axios.post("http://api.terralogic.ngrok.io/api/login", {
 				email: email,
 				password: password
 			}).then(res => {
-				console.log(res);
 				if (res.data.status === 1) {
-					localStorage.setItem('token', res.data.token);
 					const user = jwtDecoder(res.data.token);
-					localStorage.setItem('key', JSON.stringify(user));
+					const token = res.data.token
+					const profile = { ...user, token };
+					dispatch(Actions.setLoginResult(profile));
 					props.history.push("/profile");
 				}
 				else setResponseError(res.data.msg);
@@ -81,7 +86,7 @@ const SignIn = props => {
 						<label>Email</label>
 						<div className="input">
 							<img src="assets/images/Suche.svg" />
-							<input type="email" placeholder="Enter your email" value={email} onChange={e => {
+							<input className="email-login" type="email" placeholder="Enter your email" value={email} onChange={e => {
 								setEmail(e.target.value);
 								setEmailError("");
 							}} onKeyUp={e => {
@@ -101,7 +106,7 @@ const SignIn = props => {
 						<label>Password</label>
 						<div className="input">
 							<img src="assets/images/Suche02.svg" />
-							<input type={showPassword == true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={e => {
+							<input className="password-login" type={showPassword == true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={e => {
 								setPassword(e.target.value);
 								setPasswordError("");
 							}} onKeyUp={e => {
@@ -132,7 +137,7 @@ const SignIn = props => {
 
 					<div className="buttons">
 						<Link to="/register">Register</Link>
-						<button onClick={submit}>{loading == true ? "Loading..." : "Login"}</button>
+						<button className="login-button" onClick={submit}>{loading == true ? "Loading..." : "Login"}</button>
 					</div>
 
 					<div className="extra">

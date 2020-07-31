@@ -1,16 +1,23 @@
-import React, { useRef } from "react"
+import React, { useRef, useEffect } from "react"
 import './style.scss';
 import { Link, withRouter } from "react-router-dom";
 import axios from "axios";
 import { emailRegex, phoneRegex, passwordRegex } from '../../utils/constants';
+import {useSelector, useDispatch} from "react-redux";
+import * as Actions from "../../Redux/actions.js";
 
 const fileExt = ['png', 'jpg', 'jpeg', 'svg'];
 
 const Profile = props => {
+	const profile = useSelector(state => state.userInfo);
+	const isFetching = useSelector(state => state.isFetching);
+
 	let token = localStorage.getItem('token');
+	const dispatch = useDispatch();
 	const [userInfo, setUserInfo] = React.useState(JSON.parse(localStorage.getItem('key')));
 	const [avatar, setAvatar] = React.useState(userInfo.avatar ? userInfo.avatar : "/assets/images/avatar.png");
 	const [showPassword, setShowPassword] = React.useState(false);
+	const [isLoading, setLoading] = React.useState(false);
 	const [newShowPassword, setnewShowPassword] = React.useState(false);
 	const [confirmShowPassword, setconfirmShowPassword] = React.useState(false);
 	const [emailError, setEmailError] = React.useState("");
@@ -26,7 +33,10 @@ const Profile = props => {
 	let newPasswordRef = useRef();
 	let confirmPasswordRef = useRef();
 
-
+	useEffect(() => {
+		console.log(isFetching)
+		setLoading(isFetching);
+	});
 	const validate = () => {
 		let flag = true;
 		if (emailRef.value == "") {
@@ -113,16 +123,19 @@ const Profile = props => {
 			name: nameRef.value,
 			displayName: nameRef.value
 		}
+		dispatch(Actions.setProfile());
 		axios.patch('http://api.terralogic.ngrok.io/api/update', info, {
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': 'Bearer ' + token
 			}
 		}).then(res => {
-			alert('Success');
-			localStorage.setItem('key', JSON.stringify({...res.data.data}));
-			setUserInfo({...res.data.data});
+			const result = {...res.data.data};
+			localStorage.setItem('key', JSON.stringify(result));
+			setUserInfo(result);
+			dispatch(Actions.setProfileResult(result, ""));
 			setAvatar(res.data.data.avatar ? res.data.data.avatar : avatar);
+			//neu co case error thi dispatch(Actions.setProfileResult({}, error));
 		});
 	}
 
