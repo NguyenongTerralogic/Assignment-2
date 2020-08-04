@@ -16,7 +16,6 @@ const SignIn = props => {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 	const isFetching = useSelector(state => state.isFetching);
-
 	const keyUpHandler = e => {
 		if (e.which === 13) {
 			submit();
@@ -75,8 +74,9 @@ const SignIn = props => {
 					props.history.push("/profile");
 				}
 				else setResponseError(res.data.msg);
-			}).catch(e => {
+			}).catch(error => {
 				setResponseError("Something went wrong, please try again");
+				dispatch(Actions.setError(error));
 			}).finally(() => {
 				setLoading(false);
 			});
@@ -142,8 +142,8 @@ const SignIn = props => {
 					</div>
 
 					<div className="extra">
-						<button className="checkbox"></button>
-						<label>Remember pasword</label>
+						<input type="checkbox" id="checkbox" />
+						<label htmlFor="checkbox">Remember pasword</label>
 					</div>
 				</div>
 			</div>
