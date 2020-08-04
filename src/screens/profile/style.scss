@@ -20,85 +20,85 @@
 	position: relative;
 	padding: 30px 50px 50px 50px;
 	box-shadow: 0 8px 8px 8px #e9e9e9;
-}
-.user-name {
-	font-family: ProximaNovaBold;
-	font-size: 39px;
-	color: #313558;
-}
-.editBtn {
-	position: absolute;
-	top: 14px;
-	left: 84px;
-	background: transparent;
-	border:0;
-}
-.showBtn {
-	left: 85%;
-	top: 45%;
-	position: absolute;
-	z-index: 2;
-	border: 0;
-	background: transparent;
-	img {
-		height: 160%;
-		width: 160%;
+	.user-name {
+		font-family: ProximaNovaBold;
+		font-size: 39px;
+		color: #313558;
 	}
-}
-.form-group {
-	padding: 10px 10px 10px 0;
-	margin: 10px 10px 10px 0;
-	>label {
-		position: absolute;
-		top: -3px;
-		left: 20px;
+	.user-avatar {
+		.editBtn {
+			position: absolute;
+			top: 14px;
+			left: 84px;
+			background: transparent;
+			border: 0;
+		}
+		.avatar {
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+		}
+	}
+	.form-group {
+		padding: 10px 10px 10px 0;
+		margin: 10px 10px 10px 0;
+		.showBtn {
+			left: 85%;
+			top: 45%;
+			position: absolute;
+			z-index: 2;
+			border: 0;
+			background: transparent;
+			img {
+				height: 160%;
+				width: 160%;
+			}
+		}
+		& > label {
+			position: absolute;
+			top: -3px;
+			left: 20px;
+			background-color: white;
+			padding: 2px;
+			font-size: 16px;
+		}
+		input {
+			height: 170%;
+			width: 100%;
+			border: #212020 50 2px solid;
+		}
+	}
+	.saveBtn {
+		border: #bd10e0 1px solid;
+		border-radius: 30px;
+		padding: 11px 40px 11px 40px;
+		margin-right: 3%;
+		font-size: 24px;
+		font-weight: bold;
+		color: white;
+		background-color: #bd10e0;
+		width: 133px;
+		height: 60px;
+	}
+	.logoutBtn {
+		border: #bd10e0 1px solid;
+		border-radius: 30px;
+		padding: 11px 40px 11px 40px;
+		margin-right: 3%;
+		font-size: 24px;
+		font-weight: bold;
+		color: #bd10e0;
 		background-color: white;
-		padding: 2px;
-		font-size: 16px;
+		width: 180px;
+		height: 60px;
 	}
-	input {
-		height: 170%;
-		width: 100%;
-		border: #21202050 2px solid;
+	.form-control-file {
+		display: none;
+	}
+	button:visited, button:link {
+		border-color: transparent;
+	}
+	button {
+		outline: 0;
 	}
 }
-.saveBtn {
-	border: #bd10e0 1px solid;
-	border-radius: 30px;
-	padding: 11px 40px 11px 40px;
-	margin-right: 3%;
-	font-size: 24px;
-	font-weight: bold;
-	color: white;
-	background-color: #bd10e0;
-	width: 133px;
-	height: 60px;
-}
-.logoutBtn {
-	border: #bd10e0 1px solid;
-	border-radius: 30px;
-	padding: 11px 40px 11px 40px;
-	margin-right: 3%;
-	font-size: 24px;
-	font-weight: bold;
-	color: #bd10e0;
-	background-color: white;
-	width: 180px;
-	height: 60px;
-}
-
-
-.form-control-file {
-	display:none;
-}
-
-button:visited, button:link {
-	border-color:transparent;
-}
-
-.user-avatar .avatar {
-	width:60px;
-	height:60px;
-	border-radius:50%;
-}
-
