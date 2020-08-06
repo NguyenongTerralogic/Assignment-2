@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react"
 import './style.scss';
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import axios from "axios";
 import { emailRegex, phoneRegex, passwordRegex } from '../../utils/constants';
 import {useSelector, useDispatch} from "react-redux";
@@ -9,7 +9,6 @@ import * as Actions from "../../Redux/actions.js";
 const fileExt = ['png', 'jpg', 'jpeg', 'svg'];
 
 const Profile = props => {
-	const profile = useSelector(state => state.userInfo);
 	const isFetching = useSelector(state => state.isFetching);
 
 	let token = localStorage.getItem('token');
@@ -18,7 +17,7 @@ const Profile = props => {
 	const [avatar, setAvatar] = React.useState(userInfo.avatar ? userInfo.avatar : "/assets/images/avatar.png");
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [isLoading, setLoading] = React.useState(false);
-	const [newShowPassword, setnewShowPassword] = React.useState(false);
+	const [newShowPassword, setNewShowPassword] = React.useState(false);
 	const [confirmShowPassword, setconfirmShowPassword] = React.useState(false);
 	const [emailError, setEmailError] = React.useState("");
 	const [confirmPasswordError, setconfirmPasswordError] = React.useState("");
@@ -32,14 +31,27 @@ const Profile = props => {
 	let currPasswordRef = useRef();
 	let newPasswordRef = useRef();
 	let confirmPasswordRef = useRef();
+	const showPasswordHandler = e => {
+		e.preventDefault();
+		setShowPassword(!showPassword);
+	}
 
+	const showNewPasswordHandler = e => {
+		e.preventDefault();
+		setNewShowPassword(!newShowPassword);
+	}
+
+	const showConfirmPasswordHandler = e => {
+		e.preventDefault();
+		setconfirmShowPassword(!confirmShowPassword);
+	}
 	useEffect(() => {
 		console.log(isFetching)
 		setLoading(isFetching);
 	});
 	const validate = () => {
 		let flag = true;
-		if (emailRef.value == "") {
+		if (!emailRef.value) {
 			flag = false;
 			setEmailError("Please enter your email");
 		} else if (emailRegex.test(emailRef.value) == false) {
@@ -47,7 +59,7 @@ const Profile = props => {
 			setEmailError("Email address is not correct");
 		}
 
-		if (userInfo.name == "") {
+		if (!userInfo.name) {
 			flag = false;
 			setfullNameError('Please put your name');
 		}
@@ -67,7 +79,7 @@ const Profile = props => {
 		if(!newPasswordRef.value && !currPasswordRef.value && !confirmPasswordRef.value)
 			return "NO_UPDATE_PASSWORD";
 
-		if (newPasswordRef.value == "" || currPasswordRef.value == "") {
+		if (!newPasswordRef.value || !currPasswordRef.value) {
 			flag="ERROR";
 			setPasswordError("Please enter your password");
 		}
@@ -135,7 +147,6 @@ const Profile = props => {
 			setUserInfo(result);
 			dispatch(Actions.setProfileResult(result, ""));
 			setAvatar(res.data.data.avatar ? res.data.data.avatar : avatar);
-			//neu co case error thi dispatch(Actions.setProfileResult({}, error));
 		});
 	}
 
@@ -158,11 +169,10 @@ const Profile = props => {
 
 	const saveInfo = (e) => {
 		e.preventDefault();
-			//Password update
-		if (validatePassword() == "UPDATE_PASSWORD") {
+		if (validatePassword() === "UPDATE_PASSWORD") {
 			updatePassword();
 			updateProfile();
-		} else if (validatePassword() == "NO_UPDATE_PASSWORD") updateProfile();
+		} else if (validatePassword() === "NO_UPDATE_PASSWORD") updateProfile();
 		else alert("ERROR");
 	}
 
@@ -217,12 +227,10 @@ const Profile = props => {
 						<div className="form-row">
 							<div className="form-group col">
 								<label for="currentPwdInput">Current Password</label>
-								<input type={showPassword == true ? "text" : "password"} className="form-control" ref={input => currPasswordRef = input} defaultValue={null} />
-								<button className="showBtn" onClick={e => {
-									e.preventDefault();
-									setShowPassword(!showPassword);
-								}}>
-									<img src="assets/images/Suche04.svg" /></button>
+								<input type={showPassword === true ? "text" : "password"} className="form-control" ref={input => currPasswordRef = input} defaultValue={null} />
+								<button className="showBtn" onClick={showPasswordHandler}>
+									<img src="assets/images/Suche04.svg" />
+								</button>
 							</div>
 							<div className="form-group col">
 
@@ -231,26 +239,21 @@ const Profile = props => {
 						<div className="form-row">
 							<div className="form-group col">
 								<label for="newPwdInput">New Password</label>
-								<input type={newShowPassword == true ? "text" : "password"} className="form-control" ref={input => newPasswordRef = input} defaultValue={null} />
-								<button className="showBtn" onClick={e => {
-									e.preventDefault();
-									setnewShowPassword(!newShowPassword);
-								}}>
+								<input type={newShowPassword === true ? "text" : "password"} className="form-control" ref={input => newPasswordRef = input} defaultValue={null} />
+								<button className="showBtn" onClick={showNewPasswordHandler}>
 									<img src="assets/images/Suche04.svg" /></button>
 							</div>
 							<div className="form-group col">
 								<label for="confirmPwdInput">Confirm Password</label>
-								<input type={confirmShowPassword == true ? "text" : "password"} className="form-control" ref={input => confirmPasswordRef = input} defaultValue={null} />
-								<button className="showBtn" onClick={e => {
-									e.preventDefault();
-									setconfirmShowPassword(!confirmShowPassword);
-								}}>
-									<img src="assets/images/Suche04.svg" /></button>
+								<input type={confirmShowPassword === true ? "text" : "password"} className="form-control" ref={input => confirmPasswordRef = input} defaultValue={null} />
+								<button className="showBtn" onClick={showConfirmPasswordHandler}>
+									<img src="assets/images/Suche04.svg" />
+								</button>
 							</div>
 						</div>
 						<div className="form-row mt-5">
 							<button className="saveBtn" onClick={saveInfo}>Save</button>
-							<button className="logoutBtn" onClick={logout}>Log out</button>
+							<button className="logoutBtn" onClick={logout}>Log out</button>						
 						</div>
 					</form>
 				</div>

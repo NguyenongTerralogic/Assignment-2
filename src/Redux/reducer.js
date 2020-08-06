@@ -30,7 +30,12 @@ export default function reducer(state = initialState, action){
                 userInfo: action.result,
                 isFetching: action.isFetching,
                 error: action.error
-            }       
+            }   
+        case "SET_ERROR":
+            return {
+                ...state,
+                isFetching: action.isFetching
+            }
         default: return state;
     }
 }

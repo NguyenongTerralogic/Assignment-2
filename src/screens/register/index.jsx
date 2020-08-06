@@ -17,37 +17,71 @@ const SignIn = props => {
 	const [phoneNumberError, setPhoneNumberError] = React.useState("");
 	const [responseError, setResponseError] = React.useState("");
 	const [showPassword, setShowPassword] = React.useState(false);
+	const [showConfirmPassword , setShowConfirmPassword] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 
+	const keyUpHandler = e => {
+		if (e.which === 13) {
+			submit();
+		}
+	}
+	const emailHandler = e => {
+		setEmail(e.target.value);
+		setEmailError("");
+	}
+	const passwordHandler = e => {
+		setPassword(e.target.value);
+		setPasswordError("");
+	}
+	const confirmPasswordHandler = e => {
+		setconfirmPassword(e.target.value);
+		setconfirmPasswordError("");
+	}
+	const fullNameHandler = e => {
+		setFullName(e.target.value);
+		setfullNameError("");
+	}
+	const phoneNumberHandler = e => {
+		setPhoneNumber(e.target.value);
+		setPhoneNumberError("");
+	}
+	const showPasswordHandler = e => {
+		e.preventDefault();
+		setShowPassword(!showPassword);
+	}
+	const showConfirmPasswordHandler = e => {
+		e.preventDefault();
+		setShowConfirmPassword(!showConfirmPassword)
+	}
 	const validate = () => {
 		let flag = true;
-		if (email == "") {
+		if (!email) {
 			flag = false;
 			setEmailError("Please enter your email");
-		} else if (emailRegex.test(email) == false) {
+		} else if (emailRegex.test(email) === false) {
 			flag = false;
 			setEmailError("Email address is not correct");
 		}
 
-		if (password == "") {
+		if (!password) {
 			flag = false;
 			setPasswordError("Please enter your password");
-		} else if (passwordRegex.test(password) == false) {
+		} else if (passwordRegex.test(password) === false) {
 			flag = false;
 			setPasswordError("Your password is weak");
 		}
-		if (confirmPassword !== password || confirmPassword == "") {
+		if (confirmPassword !== password || !confirmPassword) {
 			flag = false;
 			setconfirmPasswordError("Your password is not correct");
 		}
-		if (fullName == "") {
+		if (!fullName) {
 			flag = false;
 			setfullNameError('Please put your name');
 		}
 		if (phoneNumber.length < 10) {
 			flag = false;
 			setPhoneNumberError('Your phone is not formatted');
-		} else if (phoneRegex.test(phoneNumber) == false) {
+		} else if (phoneRegex.test(phoneNumber) === false) {
 			flag = false;
 			setPhoneNumberError("Phone is not formatted");
 		}
@@ -57,13 +91,13 @@ const SignIn = props => {
 	const submit = () => {
 		if (loading) return;
 
-		if (validate() == true) {
+		if (validate() === true) {
 			setResponseError("");
 
 			setLoading(true);
 			axios.post("http://api.terralogic.ngrok.io/api/register", {
-				email: email,
-				password: password,
+				email,
+				password,
 				name: fullName,
 				phone: phoneNumber
 			}).then(res => {
@@ -99,14 +133,7 @@ const SignIn = props => {
 						<label>Email</label>
 						<div className="input">
 							<img src="assets/images/Suche.svg" />
-							<input type="email" placeholder="Enter your email" value={email} onChange={e => {
-								setEmail(e.target.value);
-								setEmailError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
+							<input type="email" placeholder="Enter your email" value={email} onChange={emailHandler} onKeyUp={keyUpHandler} />
 						</div>
 						{
 							emailError.length > 0
@@ -119,17 +146,8 @@ const SignIn = props => {
 						<label>Password</label>
 						<div className="input">
 							<img src="assets/images/Suche02.svg" />
-							<input type={showPassword == true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={e => {
-								setPassword(e.target.value);
-								setPasswordError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
-							<button onClick={() => {
-								setShowPassword(!showPassword);
-							}}>
+							<input type={showPassword === true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={passwordHandler} onKeyUp={keyUpHandler} />
+							<button onClick={showPasswordHandler}>
 								<img src="assets/images/Suche03.svg" />
 							</button>
 						</div>
@@ -144,17 +162,8 @@ const SignIn = props => {
 						<label>Confirm Password</label>
 						<div className="input">
 							<img src="assets/images/Suche02.svg" />
-							<input type={showPassword == true ? "text" : "password"} placeholder="Enter your password" value={confirmPassword} onChange={e => {
-								setconfirmPassword(e.target.value);
-								setconfirmPasswordError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
-							<button onClick={() => {
-								setShowPassword(!showPassword);
-							}}>
+							<input type={showConfirmPassword == true ? "text" : "password"} placeholder="Enter your password" value={confirmPassword} onChange={confirmPasswordHandler} onKeyUp={keyUpHandler} />
+							<button onClick={showConfirmPasswordHandler}>
 								<img src="assets/images/Suche03.svg" />
 							</button>
 						</div>
@@ -169,14 +178,7 @@ const SignIn = props => {
 						<label>Full Name</label>
 						<div className="input">
 							<img src="assets/images/Suche.svg" />
-							<input type="text" placeholder="Enter your name" value={fullName} onChange={e => {
-								setFullName(e.target.value);
-								setfullNameError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
+							<input type="text" placeholder="Enter your name" value={fullName} onChange={fullNameHandler} onKeyUp={keyUpHandler} />
 						</div>
 						{
 							fullNameError.length > 0
@@ -188,14 +190,7 @@ const SignIn = props => {
 						<label>Phone Number</label>
 						<div className="input">
 							<img src="assets/images/Suche.svg" />
-							<input type="text" placeholder="Enter your phone number" value={phoneNumber} onChange={e => {
-								setPhoneNumber(e.target.value);
-								setPhoneNumberError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
+							<input type="text" placeholder="Enter your phone number" value={phoneNumber} onChange={phoneNumberHandler} onKeyUp={keyUpHandler} />
 						</div>
 						{
 							phoneNumberError.length > 0

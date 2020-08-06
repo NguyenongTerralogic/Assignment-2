@@ -3,9 +3,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
-import {useSelector} from 'react-redux';
 import SignIn from "./screens/sign-in/index.jsx"
 import Register from "./screens/register/index.jsx"
 import Profile from "./screens/profile/index.jsx"

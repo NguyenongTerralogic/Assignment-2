@@ -28,3 +28,11 @@ export const setProfileResult = (userInfo = {}, error = "") => {
         isFetching: false
     }
 }
+
+export const setError = () => {
+    return {
+        type: "SET_ERROR",
+        error:"Wrong username or password",
+        isFetching: false
+    }
+}

@@ -1,6 +1,5 @@
 import React, { useEffect } from "react"
 import { Link, withRouter } from "react-router-dom";
-import "./style.css"
 import { emailRegex } from "../../utils/constants.js"
 import axios from "axios";
 import * as Actions from "../../Redux/actions.js";
@@ -17,6 +16,23 @@ const SignIn = props => {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 	const isFetching = useSelector(state => state.isFetching);
+	const keyUpHandler = e => {
+		if (e.which === 13) {
+			submit();
+		}
+	}
+	const emailHandler = e => {
+		setEmail(e.target.value);
+		setEmailError("");
+	}
+	const passwordHandler = e => {
+		setPassword(e.target.value);
+		setPasswordError("");
+	}
+	const showPasswordHandler = e => {
+		e.preventDefault();
+		setShowPassword(!showPassword);
+	}
 
 	useEffect(() => {
 		setLoading(isFetching);
@@ -25,7 +41,7 @@ const SignIn = props => {
 	const validate = () => {
 		let flag = true;
 
-		if (email == "") {
+		if (!email) {
 			flag = false;
 			setEmailError("Please enter your email");
 		} else if (emailRegex.test(email) == false) {
@@ -33,7 +49,7 @@ const SignIn = props => {
 			setEmailError("Email address is not correct");
 		}
 
-		if (password == "") {
+		if (!password) {
 			flag = false;
 			setPasswordError("Please enter your password");
 		}
@@ -43,7 +59,7 @@ const SignIn = props => {
 	const submit = () => {
 		localStorage.clear();
 		if (loading) return;
-		if (validate() == true) {
+		if (validate() === true) {
 			dispatch(Actions.login())
 			setResponseError("");
 			axios.post("http://api.terralogic.ngrok.io/api/login", {
@@ -58,8 +74,9 @@ const SignIn = props => {
 					props.history.push("/profile");
 				}
 				else setResponseError(res.data.msg);
-			}).catch(e => {
+			}).catch(error => {
 				setResponseError("Something went wrong, please try again");
+				dispatch(Actions.setError(error));
 			}).finally(() => {
 				setLoading(false);
 			});
@@ -86,14 +103,7 @@ const SignIn = props => {
 						<label>Email</label>
 						<div className="input">
 							<img src="assets/images/Suche.svg" />
-							<input className="email-login" type="email" placeholder="Enter your email" value={email} onChange={e => {
-								setEmail(e.target.value);
-								setEmailError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
+							<input className="email-login" type="email" placeholder="Enter your email" value={email} onChange={emailHandler} onKeyUp={keyUpHandler} />
 						</div>
 						{
 							emailError.length > 0
@@ -106,17 +116,8 @@ const SignIn = props => {
 						<label>Password</label>
 						<div className="input">
 							<img src="assets/images/Suche02.svg" />
-							<input className="password-login" type={showPassword == true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={e => {
-								setPassword(e.target.value);
-								setPasswordError("");
-							}} onKeyUp={e => {
-								if (e.which == 13) {
-									submit();
-								}
-							}} />
-							<button onClick={() => {
-								setShowPassword(!showPassword);
-							}}>
+							<input className="password-login" type={showPassword === true ? "text" : "password"} placeholder="Enter your password" value={password} onChange={passwordHandler} onKeyUp={keyUpHandler} />
+							<button onClick={showPasswordHandler}>
 								<img src="assets/images/Suche03.svg" />
 							</button>
 						</div>
@@ -141,8 +142,8 @@ const SignIn = props => {
 					</div>
 
 					<div className="extra">
-						<button className="checkbox"></button>
-						<label>Remember pasword</label>
+						<input type="checkbox" id="checkbox" />
+						<label htmlFor="checkbox">Remember pasword</label>
 					</div>
 				</div>
 			</div>
